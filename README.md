@@ -1,24 +1,47 @@
-# my-app
+# Front End Vue para busca de imóveis CAIXA
 
-## Project setup
+## Descrição
+Este é um projeto que visa melhorar a interface de busca de imóveis da CAIXA, melhorado a experiência do usuário e facilitando a busca de imóveis.
+
+## Requisitos
+
+O projeto utiliza o Vue 2 e o Vuetify 2. 
+
+As escolhas foram feitas por possuirem os componentes necessários para a criação da interface de busca.
+
+Em especial a v-treeview
+
+## Setup do projeto
+
+### Instalação do Vue cli
+
 ```
-yarn install
+npm install -g @vue/cli
 ```
 
-### Compiles and hot-reloads for development
+### Criação do projeto
+
 ```
-yarn serve
+vue create my-app
 ```
 
-### Compiles and minifies for production
+### Instalação do Vuetify
+
 ```
-yarn build
+npm install vuetify@2.7.1
 ```
 
-### Lints and fixes files
+## Start do vue ui com as ferramentas de build
 ```
-yarn lint
+vue ui
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Mockup da api
+
+inicialmente disponibilizamos um mockup da api para testes em:
+
+```
+public/api/facets.js
+```
+
+

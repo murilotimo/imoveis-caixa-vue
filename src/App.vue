@@ -1,60 +1,184 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
+  <v-app id="inspire">
+    <v-app-bar app color="white" flat>
+      <v-avatar :color="$vuetify.breakpoint.smAndDown ? 'grey darken-1' : 'transparent'" size="32"></v-avatar>
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
+      <v-tabs centered class="ml-n9" color="grey darken-1">
+        <v-tab v-for="link in links" :key="link">
+          {{ link }}
+        </v-tab>
+      </v-tabs>
 
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <v-avatar class="hidden-sm-and-down" color="grey darken-1 shrink" size="32"></v-avatar>
     </v-app-bar>
 
-    <v-main>
-      <HelloWorld/>
+    <v-main class="grey lighten-3">
+      <v-container :fluid="true">
+        <v-row>
+          <v-col cols="12" sm="2">
+            <v-sheet rounded="lg" class="fill-height pa-0">
+              <v-card class="mx-auto" max-width="500">
+                <v-sheet class="pa-4 primary lighten-2">
+                  <v-text-field v-model="search" label="Filtre por cidade ou estado" dark flat solo-inverted hide-details
+                    clearable clear-icon="mdi-close-circle-outline"></v-text-field>
+                </v-sheet>
+                <v-card-text>
+                  <v-treeview 
+                    selectable 
+                    hoverable 
+                    open-on-click 
+                    dense 
+                    :items="treeItems.buckets"
+                    item-children="cidades.buckets" 
+                    item-text="val" 
+                    item-key="val" 
+                    :search="search" 
+                    :filter="filter"
+                    >
+                    <template v-slot:append="{ item }">
+                        {{ item.count }}
+                    </template>
+                  </v-treeview>
+                </v-card-text>
+              </v-card>
+              <!--  -->
+            </v-sheet>
+          </v-col>
+
+          <v-col cols="12" sm="8">
+            <v-sheet min-height="70vh" rounded="lg">
+              <!--  -->
+            </v-sheet>
+          </v-col>
+
+          <v-col cols="12" sm="2">
+            <v-sheet rounded="lg" min-height="268">
+              <!--  -->
+            </v-sheet>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import axios from 'axios';  // Importe o Axios
 
 export default {
-  name: 'App',
-
-  components: {
-    HelloWorld,
-  },
-
   data: () => ({
-    //
+    links: [
+      'Dashboard',
+      'Messages',
+      'Profile',
+      'Updates',
+    ],
+    treeItems: [
+      {
+        id: 1,
+        name: 'Applications :',
+        children: [
+          { id: 2, name: 'Calendar : app' },
+          { id: 3, name: 'Chrome : app' },
+          { id: 4, name: 'Webstorm : app' },
+        ],
+      },
+      {
+        id: 5,
+        name: 'Documents :',
+        children: [
+          {
+            id: 6,
+            name: 'vuetify :',
+            children: [
+              {
+                id: 7,
+                name: 'src :',
+                children: [
+                  { id: 8, name: 'index : ts' },
+                  { id: 9, name: 'bootstrap : ts' },
+                ],
+              },
+            ],
+          },
+          {
+            id: 10,
+            name: 'material2 :',
+            children: [
+              {
+                id: 11,
+                name: 'src :',
+                children: [
+                  { id: 12, name: 'v-btn : ts' },
+                  { id: 13, name: 'v-card : ts' },
+                  { id: 14, name: 'v-window : ts' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 15,
+        name: 'Downloads :',
+        children: [
+          { id: 16, name: 'October : pdf' },
+          { id: 17, name: 'November : pdf' },
+          { id: 18, name: 'Tutorial : html' },
+        ],
+      },
+      {
+        id: 19,
+        name: 'Videos :',
+        children: [
+          {
+            id: 20,
+            name: 'Tutorials :',
+            children: [
+              { id: 21, name: 'Basic layouts : mp4' },
+              { id: 22, name: 'Advanced techniques : mp4' },
+              { id: 23, name: 'All about app : dir' },
+            ],
+          },
+          { id: 24, name: 'Intro : mov' },
+          { id: 25, name: 'Conference introduction : avi' },
+        ],
+      },
+    ],
+    search: null,
+    caseSensitive: false,
   }),
-};
+  computed: {
+    filter() {
+      return this.caseSensitive
+        ? (item, search, textKey) => item[textKey].indexOf(search) > -1
+        : undefined
+    },
+  },
+  mounted() {
+    // Faça a chamada para o arquivo 'facets.js' e processe o resultado
+    axios.get('/api/facets.js')
+      .then(response => {
+        // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
+        // Preencha a propriedade 'treeItems' com os dados da resposta
+        console.log(response.data.facets.estados.buckets);
+        this.treeItems = response.data.facets.estados;  // Supondo que os dados estejam em 'facets' na resposta
+      })
+      .catch(error => {
+        // Lide com erros de solicitação aqui
+        console.error(error);
+      });
+  },
+  methods: {
+    logItem(item) {
+      // Esta função será chamada para cada item na árvore
+      // e exibirá o item no console.log
+      console.log(item);
+
+      // Você pode retornar qualquer string desejada para ser exibida como texto do item
+      return item.val; // Neste exemplo, estamos retornando o valor "val" do item
+    },
+    // ...
+  },
+}
 </script>
