@@ -40,7 +40,10 @@
                         <v-chip v-for="node in cidades_selecionadas"
                         :key="node.val"
                         small
-                        > {{ node.val }} ({{ node.count }})
+                        close
+                        color="teal"
+                        text-color="white"
+                          > {{ node.val }} ({{ node.count }}) 
                         </v-chip>
                       </v-col>
                     </v-row>
@@ -236,6 +239,14 @@ export default {
         ],
       },
     ],
+    filtros : {
+      estados: [],
+      cidades: [],
+      tipo_imovel: [],
+      valor_minimo: 0,
+      valor_maximo: 0,
+      quantidade_quartos: 0,
+    },
     cidades_selecionadas: [],
     search: null,
     caseSensitive: false,
@@ -253,7 +264,17 @@ export default {
       .then(response => {
         // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
         // Preencha a propriedade 'treeItems' com os dados da resposta
-        console.log(response.data.facets.estados.buckets);
+        // console.log(response.data.facets);
+
+        let remove_chaves = ['estados', 'count'];
+
+        for (let filtro in response.data.facets) {
+          if (!remove_chaves.includes(filtro)) {
+            console.log(filtro);
+            this.filtros[filtro] = response.data.facets[filtro];
+          }
+        }
+
         this.treeItems = response.data.facets.estados;  // Supondo que os dados estejam em 'facets' na resposta
       })
       .catch(error => {
