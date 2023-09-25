@@ -16,31 +16,122 @@
       <v-container :fluid="true">
         <v-row>
           <v-col cols="12" sm="2">
+
+            <v-expansion-panels
+              :accordion="true"
+              :flat="false"
+              :inset="false"
+              :multiple="true"
+              :popout="false"
+            >
+              <!-- Filtro de Estados e Cidades -->
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  <template v-slot:default>
+                    <v-row>
+                      <v-col cols="12">
+                        <v-text-field v-model="search" label="Estado ou cidade ..."   
+                        hide-details
+                        clearable 
+                        clear-icon="mdi-close-circle-outline">
+                        </v-text-field>
+                      </v-col>
+                      <v-col cols="12">
+                        <v-chip v-for="node in cidades_selecionadas"
+                        :key="node.val"
+                        small
+                        > {{ node.val }} ({{ node.count }})
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+                    
+                  </template>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-card-text>
+                      <v-treeview 
+                        selectable 
+                        hoverable 
+                        open-on-click 
+                        dense
+                        return-object
+                        v-model="cidades_selecionadas"
+                        :items="treeItems.buckets"
+                        item-children="cidades.buckets" 
+                        item-text="val" 
+                        item-key="val" 
+                        :search="search" 
+                        :filter="filter"
+                        >
+                        <template v-slot:append="{ item }">
+                            {{ item.count }}
+                        </template>
+                      </v-treeview>
+                    </v-card-text>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+
+              <!-- Filtro de Tipo de imovel -->
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  Tipo de imóvel
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <!-- Seletores de tipo de imóvel como: terreno, apartamento, casa -->
+                  <ul>
+                    <li>Terreno</li>
+                    <li>Apartamento</li>
+                    <li>Casa</li>
+                  </ul>
+
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+
+              <!-- Filtro Valor -->
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  Valor de venda
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <!-- um slider com campos de texto para o valor mínimo e máximo dos imóveis -->
+                  <v-row>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        label="Valor mínimo"
+                        prepend-icon="mdi-cash"
+                        type="number"
+                        min="0"
+                        step="1000"
+                        outlined
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        label="Valor máximo"
+                        prepend-icon="mdi-cash"
+                        type="number"
+                        min="0"
+                        step="1000"
+                        outlined
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              
+              <!-- Filtro de Quantidade de quartos -->
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  Quantidade de quartos
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              
+            </v-expansion-panels>
             <v-sheet rounded="lg" class="fill-height pa-0">
-              <v-card class="mx-auto" max-width="500">
-                <v-sheet class="pa-4 primary lighten-2">
-                  <v-text-field v-model="search" label="Filtre por cidade ou estado" dark flat solo-inverted hide-details
-                    clearable clear-icon="mdi-close-circle-outline"></v-text-field>
-                </v-sheet>
-                <v-card-text>
-                  <v-treeview 
-                    selectable 
-                    hoverable 
-                    open-on-click 
-                    dense 
-                    :items="treeItems.buckets"
-                    item-children="cidades.buckets" 
-                    item-text="val" 
-                    item-key="val" 
-                    :search="search" 
-                    :filter="filter"
-                    >
-                    <template v-slot:append="{ item }">
-                        {{ item.count }}
-                    </template>
-                  </v-treeview>
-                </v-card-text>
-              </v-card>
+              
               <!--  -->
             </v-sheet>
           </v-col>
@@ -145,6 +236,7 @@ export default {
         ],
       },
     ],
+    cidades_selecionadas: [],
     search: null,
     caseSensitive: false,
   }),
