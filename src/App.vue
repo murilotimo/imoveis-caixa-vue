@@ -15,7 +15,7 @@
     <v-main class="grey lighten-3">
       <v-container :fluid="true">
         <v-row>
-          <v-col cols="12" sm="2">
+          <v-col cols="12" sm="3">
 
             <v-expansion-panels
               :accordion="true"
@@ -74,22 +74,6 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
 
-              <!-- Filtro de Tipo de imovel -->
-              <v-expansion-panel>
-                <v-expansion-panel-header>
-                  Tipo de imóvel
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <!-- Seletores de tipo de imóvel como: terreno, apartamento, casa -->
-                  <ul>
-                    <li>Terreno</li>
-                    <li>Apartamento</li>
-                    <li>Casa</li>
-                  </ul>
-
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-
               <!-- Filtro Valor -->
               <v-expansion-panel>
                 <v-expansion-panel-header>
@@ -121,14 +105,23 @@
                   </v-row>
                 </v-expansion-panel-content>
               </v-expansion-panel>
-              
-              <!-- Filtro de Quantidade de quartos -->
-              <v-expansion-panel>
+
+              <!-- Filtros de Categorias -->
+              <v-expansion-panel
+                v-for="(filtro, filtro_idx) in filtros "
+                :key="filtro_idx"
+              >
                 <v-expansion-panel-header>
-                  Quantidade de quartos
+                  {{ filtro_idx }}
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                  <!-- Seletores de tipo de imóvel como: terreno, apartamento, casa -->
+                  <ul>
+                    <li>Terreno</li>
+                    <li>Apartamento</li>
+                    <li>Casa</li>
+                  </ul>
+
                 </v-expansion-panel-content>
               </v-expansion-panel>
               
@@ -139,17 +132,12 @@
             </v-sheet>
           </v-col>
 
-          <v-col cols="12" sm="8">
+          <v-col cols="12" sm="9">
             <v-sheet min-height="70vh" rounded="lg">
               <!--  -->
             </v-sheet>
           </v-col>
 
-          <v-col cols="12" sm="2">
-            <v-sheet rounded="lg" min-height="268">
-              <!--  -->
-            </v-sheet>
-          </v-col>
         </v-row>
       </v-container>
     </v-main>
@@ -162,10 +150,7 @@ import axios from 'axios';  // Importe o Axios
 export default {
   data: () => ({
     links: [
-      'Dashboard',
-      'Messages',
-      'Profile',
-      'Updates',
+      'Busca Imóveis'
     ],
     treeItems: [
       {
@@ -239,14 +224,7 @@ export default {
         ],
       },
     ],
-    filtros : {
-      estados: [],
-      cidades: [],
-      tipo_imovel: [],
-      valor_minimo: 0,
-      valor_maximo: 0,
-      quantidade_quartos: 0,
-    },
+    filtros : {},
     cidades_selecionadas: [],
     search: null,
     caseSensitive: false,
@@ -264,13 +242,15 @@ export default {
       .then(response => {
         // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
         // Preencha a propriedade 'treeItems' com os dados da resposta
-        // console.log(response.data.facets);
+        console.log(response.data.facets);
 
-        let remove_chaves = ['estados', 'count'];
+        let remove_chaves = ['estados', 'count', 'cidades'];
 
         for (let filtro in response.data.facets) {
+          console.log(filtro);
+          console.log(remove_chaves.includes(filtro));
           if (!remove_chaves.includes(filtro)) {
-            console.log(filtro);
+            console.log(filtro, response.data.facets[filtro]);
             this.filtros[filtro] = response.data.facets[filtro];
           }
         }
