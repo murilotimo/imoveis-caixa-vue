@@ -25,6 +25,7 @@
           <v-col cols="12" sm="3">
             <filtros-component
               :filtros="filtros"
+              :filtrosSelecionados="filtrosSelecionados"
               @update_filtros="update_filtros"
             />
             <v-sheet rounded="lg" class="fill-height pa-0">
@@ -433,10 +434,10 @@ export default {
         let remove_chaves = ["estados", "count", "cidades"];
 
         for (let filtro in response.data.facets) {
-          console.log(filtro);
-          console.log(remove_chaves.includes(filtro));
+          //console.log(filtro);
+          //console.log(remove_chaves.includes(filtro));
           if (!remove_chaves.includes(filtro)) {
-            console.log(filtro, response.data.facets[filtro]);
+            //console.log(filtro, response.data.facets[filtro]);
             this.filtros[filtro] = response.data.facets[filtro];
           }
         }
@@ -446,7 +447,27 @@ export default {
       .catch((error) => {
         // Lide com erros de solicitação aqui
         console.error(error);
-      });
+      });      
+  },
+  created: function () {
+    console.log("Parametros da Url", this.$route.query);
+
+    // Use o Vue Router para obter os parâmetros da URL
+    this.filtrosSelecionados = Object.assign({}, this.$route.query);
+
+    /*
+    // Use o Vue Router para obter os parâmetros da URL
+    this.pPaginaAtual = this.$route.query.pagina
+      ? parseInt(this.$route.query.pagina)
+      : 0;
+
+    // Use o Vue Router para obter os parâmetros da URL
+    this.pTamanhoPagina = this.$route.query.tamanhoPagina
+      ? parseInt(this.$route.query.tamanhoPagina)
+      : 25;
+    */
+
+    this.getImoveis();
   },
   methods: {
     logItem(item) {
@@ -459,8 +480,19 @@ export default {
     },
     //captura a informação das cidades selecionadas do componente filtros
     update_filtros: function (params) {
-      console.log("Filtros foram atualizados", params);
+      console.log("Filtros foram atualizados", params, this);
       this.filtrosSelecionados[params.nomeFiltro] = params.valoresSelecionados;
+
+      // Verifique se os filtros selecionados são diferentes dos filtros na URL
+      if (!_.isEqual(this.filtrosSelecionados, this.$route.query)) {
+        this.filtrosSelecionados[params.nomeFiltro] =
+          params.valoresSelecionados;
+
+        // Use o Vue Router para atualizar a URL
+        this.$router.push({ path: "/", query: this.filtrosSelecionados });
+
+        this.getImoveis();
+      }
 
       this.getImoveis();
     },
@@ -481,9 +513,10 @@ export default {
     getImoveis: function () {
       const self = this;
       axios
-        .post("http://localhost:5002/imoveis/busca", 
+        .post(
+          "http://localhost:5002/imoveis/busca",
           self.filtrosSelecionados
-        /*
+          /*
         {
           filtros: self.filtrosSelecionados,
           start: this.pPaginaAtual * this.pTamanhoPagina,

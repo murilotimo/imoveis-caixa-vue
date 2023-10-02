@@ -10,7 +10,7 @@
       <!-- Filtro de Estados e Cidades-->
       <FiltroEstadosCidades
         :estados="filtros.estados"
-        :cidades_selecionadas="cidades_selecionadas"
+        :cidade="cidade"
         @update_cidades_selecionadas="update_cidades_selecionadas"
       >
       </FiltroEstadosCidades>
@@ -38,7 +38,7 @@
     </v-expansion-panels>
 
     <div>
-      {{ cidades_selecionadas }}
+      {{ cidade }}
     </div>
     <ol>
       <li v-for="(filtro, filtro_key) in filtros" v-bind:key="filtro_key">
@@ -56,24 +56,29 @@ import FiltroValor from "./FiltroValor.vue";
 
 export default {
   name: "FiltrosComponent",
-  props: ["filtros"],
+  props: ["filtros", "filtrosSelecionados"],
   components: {
     FiltroEstadosCidades,
     FiltroValor,
   },
   data: () => ({
-    cidades_selecionadas: [],
+    cidade: [],
   }),
+  created: function () {
+    console.log("beforeCreate" , this.filtrosSelecionados)
+    console.log(this)
+    this.data = this.filtrosSelecionados;
+  },
   methods: {
     //captura a informação das cidades selecionadas do componente filtros
     update_cidades_selecionadas: function (params) {
       console.log("Recebi o evento update_cidades_selecionadas", params);
       console.log(this);
-      this.cidades_selecionadas = params;
+      this.cidade = params;
     },
   },
   watch: {
-    cidades_selecionadas: function (valores) {
+    cidade: function (valores) {
       console.log("cidades_selecionadas foi atualizado", valores);
 
       const valoresSelecionados = valores.map(item => item.val);
