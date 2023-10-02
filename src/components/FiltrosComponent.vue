@@ -52,6 +52,7 @@
 <script>
 import FiltroEstadosCidades from "./FiltroEstadosCidades.vue";
 import FiltroValor from "./FiltroValor.vue";
+//import _ from 'lodash';
 
 export default {
   name: "FiltrosComponent",
@@ -72,9 +73,17 @@ export default {
     },
   },
   watch: {
-    cidades_selecionadas: function (val) {
-      console.log("Data foi atualizado", val);
-      this.$emit("update_filtros", val);
+    cidades_selecionadas: function (valores) {
+      console.log("cidades_selecionadas foi atualizado", valores);
+
+      const valoresSelecionados = valores.map(item => item.val);
+      const filtroEnvelope = {
+        nomeFiltro: "cidade",
+        tipoFiltro: "categorico",
+        valoresSelecionados: valoresSelecionados
+      }
+
+      this.$emit("update_filtros", filtroEnvelope);
     },
   },
 };

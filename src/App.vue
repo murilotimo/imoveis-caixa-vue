@@ -34,11 +34,12 @@
 
           <v-col cols="12" sm="9">
             <v-sheet min-height="70vh" rounded="lg">
-              {{ cidades_selecionadas }}
+              {{ filtrosSelecionados }}
+              <p>
+                Foram encontrados {{ pTotalImoveis.toLocaleString("pt-BR") }}
+              </p>
               <!--  -->
-              <ImoveisLista
-                :imoveis="imoveis"
-              ></ImoveisLista>
+              <ImoveisLista :imoveis="imoveis"></ImoveisLista>
             </v-sheet>
           </v-col>
         </v-row>
@@ -51,11 +52,12 @@
 import axios from "axios"; // Importe o Axios
 import FiltrosComponent from "./components/FiltrosComponent.vue";
 import ImoveisLista from "./components/ImoveisLista.vue";
+import _ from "lodash";
 
 export default {
   components: {
     FiltrosComponent,
-    ImoveisLista
+    ImoveisLista,
   },
   data: () => ({
     links: ["Busca Imóveis"],
@@ -400,9 +402,14 @@ export default {
         _version_: 1778518334768152600,
       },
     ],
-    cidades_selecionadas: [],
+    filtrosSelecionados: {
+      cidade: [],
+    },
     search: null,
     caseSensitive: false,
+    pTotalImoveis: 0,
+    pPaginaAtual: 0,
+    pTamanhoPagina: 25,
   }),
   computed: {
     filter() {
@@ -418,7 +425,10 @@ export default {
       .then((response) => {
         // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
         // Preencha a propriedade 'treeItems' com os dados da resposta
-        console.log(response.data.facets);
+        console.log(response.data);
+
+        // Ajusta quantida de imóveis encontratos
+        this.pTotalImoveis = response.data.response.numFound;
 
         let remove_chaves = ["estados", "count", "cidades"];
 
@@ -450,7 +460,12 @@ export default {
     //captura a informação das cidades selecionadas do componente filtros
     update_filtros: function (params) {
       console.log("Filtros foram atualizados", params);
-      this.cidades_selecionadas = params;
+      this.filtrosSelecionados[params.nomeFiltro] = params.valoresSelecionados;
+
+      this.getImoveis();
+    },
+    debounced_update_filtros: function (params) {
+      _.debouce(this.update_filtros(params), 3000);
     },
     formataReais(numero) {
       const numeroFormatado = numero.toLocaleString("pt-BR", {
@@ -460,6 +475,33 @@ export default {
       });
       return numeroFormatado;
     },
+    formatarInteiro(numero) {
+      return numero.toLocaleString("pt-BR");
+    },
+    getImoveis: function () {
+      const self = this;
+      axios
+        .post("http://localhost:5002/imoveis/busca", 
+          self.filtrosSelecionados
+        /*
+        {
+          filtros: self.filtrosSelecionados,
+          start: this.pPaginaAtual * this.pTamanhoPagina,
+          rows: this.pTamanhoPagina,
+        }
+        */
+        )
+        .then((response) => {
+          console.log(response.data);
+          this.imoveis = response.data.response.docs;
+          this.pTotalImoveis = response.data.response.numFound;
+        })
+        .catch((error) => {
+          // Lide com erros de solicitação aqui
+          console.error(error);
+        });
+    },
+
     // ...
   },
 };
