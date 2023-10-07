@@ -11,7 +11,7 @@
       <FiltroEstadosCidades
         :estados="filtros.estados"
         :cidade="filtros.cidade"
-        :selecionadas="filtrosCategoria.cidade"
+        :selecionadas="filtrosCategorias.cidade"
         @update_cidades_selecionadas="update_cidades_selecionadas"
       >
       </FiltroEstadosCidades>
@@ -39,7 +39,7 @@
     </v-expansion-panels>
 
     <div>
-      {{ filtrosCategoria.cidade }}
+      {{ filtrosCategorias.cidade }}
     </div>
     <ol>
       <li v-for="(filtro, filtro_key) in filtros" v-bind:key="filtro_key">
@@ -63,7 +63,7 @@ export default {
     FiltroValor,
   },
   data: () => ({
-    filtrosCategoria: {
+    filtrosCategorias: {
       cidade: [],
       tipoImovel: [],
       quartos: [],
@@ -80,12 +80,12 @@ export default {
       //////////////////////////// TRAVADO AQUI ////////////////////////////
       console.log("beforeCreate", this.filtrosSelecionados);
       console.log(this);
-      if ("filtrosCategoria" in this.filtrosSelecionados) {
-        var filtrosCategoriaArr = {};
-        for (var [key, value] of Object.entries(this.filtrosSelecionados.filtrosCategoria)) {
-          filtrosCategoriaArr[key] = value.map(valor => ({ val: valor }));
+      if ("filtrosCategorias" in this.filtrosSelecionados) {
+        var filtrosCategoriasArr = {};
+        for (var [key, value] of Object.entries(this.filtrosSelecionados.filtrosCategorias)) {
+          filtrosCategoriasArr[key] = value.map(valor => ({ val: valor }));
         }
-        this.filtrosCategoria = filtrosCategoriaArr;        
+        this.filtrosCategorias = filtrosCategoriasArr;        
       }
       if ("filtrosValores" in this.filtrosSelecionados) {
         //this.filtrosValores = this.filtrosSelecionados.filtrosValores;
@@ -96,19 +96,19 @@ export default {
     //captura a informação das cidades selecionadas do componente filtros
     update_cidades_selecionadas: function (params) {
       console.log("Recebi o evento update_cidades_selecionadas", params);
-      this.filtrosCategoria.cidade = params;
+      this.filtrosCategorias.cidade = params;
       console.log(this);
     },
   },
   watch: {
-    filtrosCategoria: {
+    filtrosCategorias: {
       handler(FiltrosCat) {
         console.log(
           "FiltrosComponent Filtro de Categorias Atualizado",
           FiltrosCat
         );
 
-        var filtrosCategoriaArr = [];
+        var filtrosCategoriasArr = [];
 
         for (const [key, value] of Object.entries(FiltrosCat)) {
           console.log(key, value);
@@ -117,12 +117,12 @@ export default {
 
             const filtroEnvelope = {
               nomeFiltro: key,
-              tipoFiltro: "filtrosCategoria",
+              tipoFiltro: "filtrosCategorias",
               valoresSelecionados: valoresSelecionados,
             };
             
             console.log("update_filtros", filtroEnvelope);
-            filtrosCategoriaArr.push(filtroEnvelope);
+            filtrosCategoriasArr.push(filtroEnvelope);
             //this.filtrosSelecionados[key] = value;
           } else {
             //delete this.filtrosSelecionados[key];
@@ -130,9 +130,9 @@ export default {
         }
         console.log(
           "FiltrosComponent update_filtros_categoria",
-          filtrosCategoriaArr
+          filtrosCategoriasArr
         );
-        this.$emit("update_filtros_categoria", filtrosCategoriaArr);
+        this.$emit("update_filtros_categoria", filtrosCategoriasArr);
 
         /*
         const valoresSelecionados = valores.map((item) => item.val);

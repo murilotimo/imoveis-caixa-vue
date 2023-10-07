@@ -403,7 +403,7 @@ export default {
       },
     ],
     filtrosSelecionados: {
-      filtrosCategoria: {
+      filtrosCategorias: {
         cidade: [],
       },
       filtrosValores: {},
@@ -502,7 +502,7 @@ export default {
       //Verifica o tamanho do objeto params
       if (Object.keys(params).length === 0) {
         // Caso esteja vazio remove o parametro da url
-        this.filtrosSelecionados["filtrosCategoria"] = {};
+        this.filtrosSelecionados["filtrosCategorias"] = {};
         this.$router.push({ path: "/" });
       } else {
         // Caso não esteja vazio, Aplica o filtro e atualiza a url
@@ -547,10 +547,19 @@ export default {
     },
     getImoveis: function () {
       const self = this;
+
+      let envelope = {
+        filtros: self.filtrosSelecionados,
+        start: this.pPaginaAtual * this.pTamanhoPagina,
+        rows: this.pTamanhoPagina,
+      };
+
+      console.log("Envelope", envelope);
+
       axios
         .post(
           "http://localhost:5002/imoveis/busca",
-          self.filtrosSelecionados
+          envelope
           /*
         {
           filtros: self.filtrosSelecionados,
