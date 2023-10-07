@@ -424,7 +424,7 @@ export default {
   beforeCreate() {
     // Faça a chamada para o arquivo 'facets.js' e processe o resultado
     axios
-      .get("/api/facets.js")
+      .get("https://construcaocompartilhada.com.br/imoveis/")
       .then((response) => {
         // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
         // Preencha a propriedade 'treeItems' com os dados da resposta
@@ -558,7 +558,7 @@ export default {
 
       axios
         .post(
-          "http://localhost:5002/imoveis/busca",
+          "https://construcaocompartilhada.com.br/imoveis/busca",
           envelope
           /*
         {
