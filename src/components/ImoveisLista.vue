@@ -1,5 +1,35 @@
 <template>
   <v-container fluid>
+    <v-card
+    color="grey lighten-4"
+    flat
+    height="80px"
+    tile
+  >
+    <v-toolbar >
+      <v-toolbar-title></v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <v-col
+        class="d-flex"
+        cols="3"
+      >
+        <v-select
+          :items="items"
+          item-text="nome"
+          item-value="valor"
+          label="Ordenar por"
+          outlined
+          dense
+        >
+        <v-option>
+
+        </v-option>
+      </v-select>
+      </v-col>
+    </v-toolbar>
+  </v-card>
     <v-row dense>
       <v-col
         class="imovel"
@@ -8,24 +38,27 @@
         :cols="3"
       >
         <v-card>
-          <v-img
-            :src="imovel.src"
-            class="white--text align-end"
-            gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-            height="200px"
+          <v-carousel
+            height="230px"
           >
-            <v-card-title v-if="imovel.valor_de_venda">
-              {{ formataReais(imovel.valor_de_venda) }}
-            </v-card-title>
-            <v-card-title v-if="imovel.valor_minimo_de_venda">
-              {{ formataReais(imovel.valor_minimo_de_venda) }}
-              <v-chip class="ma-2" x-small> mínimo </v-chip>
-            </v-card-title>
-            <v-card-title v-if="imovel.valor_minimo_de_venda_a_vista">
-              {{ formataReais(imovel.valor_minimo_de_venda_a_vista) }}
-              <v-chip class="ma-2" x-small> a vista </v-chip>
-            </v-card-title>
-          </v-img>
+            <v-carousel-item
+              v-for="(item, i) in imovel['images.path']"
+              :key="i"
+              :src="'imagens_imoveis/' + item"
+            >
+              <v-card-title v-if="imovel.valor_de_venda">
+                {{ formataReais(imovel.valor_de_venda) }}
+              </v-card-title>
+              <v-card-title v-if="imovel.valor_minimo_de_venda">
+                {{ formataReais(imovel.valor_minimo_de_venda) }}
+                <v-chip class="ma-2" x-small> mínimo </v-chip>
+              </v-card-title>
+              <v-card-title v-if="imovel.valor_minimo_de_venda_a_vista">
+                {{ formataReais(imovel.valor_minimo_de_venda_a_vista) }}
+                <v-chip class="ma-2" x-small> a vista </v-chip>
+              </v-card-title></v-carousel-item
+            >
+          </v-carousel>
 
           <v-card-subtitle>
             ... {{ imovel.descricao.slice(-110) }}</v-card-subtitle
@@ -83,11 +116,13 @@
           </v-card-text>
 
           <v-card-actions>
-            <v-btn 
-                color="orange" 
-                text
-                :href="`https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=${imovel.id_imovel}`"
-                > Visitar </v-btn>
+            <v-btn
+              color="orange"
+              text
+              :href="`https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnOrigem=index&hdnimovel=${imovel.id_imovel}`"
+            >
+              Visitar
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -127,5 +162,15 @@ export default {
       });
     },
   },
+  data () {
+      return {
+        items: [
+          { nome: 'Menor Valor de Venda', valor: 'valor_de_venda asc' },
+          { nome: 'Maior Valor de Venda', valor: 'valor_de_venda desc' },
+          { nome: 'Menor Valor de Avaliação', valor: 'valor_de_avaliacao asc' },
+          { nome: 'Maior Valor de Avaliação', valor: 'valor_de_avaliacao desc' },
+        ],
+      }
+    },
 };
 </script>

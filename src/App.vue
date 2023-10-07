@@ -26,7 +26,7 @@
             <filtros-component
               :filtros="filtros"
               :filtrosSelecionados="filtrosSelecionados"
-              @update_filtros="update_filtros"
+              @update_filtros_categoria="update_filtros_categoria"
             />
             <v-sheet rounded="lg" class="fill-height pa-0">
               <!--  -->
@@ -35,7 +35,6 @@
 
           <v-col cols="12" sm="9">
             <v-sheet min-height="70vh" rounded="lg">
-              {{ filtrosSelecionados }}
               <p>
                 Foram encontrados {{ pTotalImoveis.toLocaleString("pt-BR") }}
               </p>
@@ -404,7 +403,10 @@ export default {
       },
     ],
     filtrosSelecionados: {
-      cidade: [],
+      filtrosCategoria: {
+        cidade: [],
+      },
+      filtrosValores: {},
     },
     search: null,
     caseSensitive: false,
@@ -447,13 +449,28 @@ export default {
       .catch((error) => {
         // Lide com erros de solicitação aqui
         console.error(error);
-      });      
+      });
   },
   created: function () {
     console.log("Parametros da Url", this.$route.query);
 
+    // Recupere a string codificada dos parâmetros de consulta da URL
+    const encodedJsonString = this.$route.query.filtros;
+
+    // Decodifique a string para obter o objeto JavaScript original
+    console.log(encodedJsonString); 
+    if (encodedJsonString) {
+      const jsonString = decodeURIComponent(encodedJsonString);
+      const queryParams = JSON.parse(jsonString);
+      this.filtrosSelecionados = queryParams;
+    }
+
+
+    // Agora, queryParams conterá o objeto original com os filtros
+    //console.log(queryParams.filtrosCategoria.cidade); // Irá mostrar a lista de cidades
+
     // Use o Vue Router para obter os parâmetros da URL
-    this.filtrosSelecionados = Object.assign({}, this.$route.query);
+    //this.filtrosSelecionados = Object.assign({}, this.$route.query);
 
     /*
     // Use o Vue Router para obter os parâmetros da URL
@@ -479,19 +496,37 @@ export default {
       return item.val; // Neste exemplo, estamos retornando o valor "val" do item
     },
     //captura a informação das cidades selecionadas do componente filtros
-    update_filtros: function (params) {
+    update_filtros_categoria: function (params) {
       console.log("Filtros foram atualizados", params, this);
-      this.filtrosSelecionados[params.nomeFiltro] = params.valoresSelecionados;
 
-      // Verifique se os filtros selecionados são diferentes dos filtros na URL
-      if (!_.isEqual(this.filtrosSelecionados, this.$route.query)) {
-        this.filtrosSelecionados[params.nomeFiltro] =
-          params.valoresSelecionados;
+      //Verifica o tamanho do objeto params
+      if (Object.keys(params).length === 0) {
+        // Caso esteja vazio remove o parametro da url
+        this.filtrosSelecionados["filtrosCategoria"] = {};
+        this.$router.push({ path: "/" });
+      } else {
+        // Caso não esteja vazio, Aplica o filtro e atualiza a url
+        
+        for (var [key, value] of Object.entries(params)) {
+          console.log("Aquiqqqqqq", key, value);
+          var tpFiltro = value["tipoFiltro"];
+          var nmFiltro = value["nomeFiltro"];
+          var vlFiltro = value["valoresSelecionados"];
 
-        // Use o Vue Router para atualizar a URL
-        this.$router.push({ path: "/", query: this.filtrosSelecionados });
+          this.filtrosSelecionados[tpFiltro][nmFiltro] = vlFiltro;
+        }
 
-        this.getImoveis();
+        var jsonString = JSON.stringify(this.filtrosSelecionados);
+        var encodedJsonString = encodeURIComponent(jsonString);
+        var JsonStringAtual = this.$route.query.filtros;
+
+        // Check if the new filters are different from the current filters in the URL
+        if (JsonStringAtual != encodedJsonString) {
+          this.$router.push({
+            path: "/",
+            query: { filtros: encodedJsonString },
+          });
+        }
       }
 
       this.getImoveis();

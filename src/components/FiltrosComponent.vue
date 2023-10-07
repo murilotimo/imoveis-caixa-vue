@@ -10,7 +10,8 @@
       <!-- Filtro de Estados e Cidades-->
       <FiltroEstadosCidades
         :estados="filtros.estados"
-        :cidade="cidade"
+        :cidade="filtros.cidade"
+        :selecionadas="filtrosCategoria.cidade"
         @update_cidades_selecionadas="update_cidades_selecionadas"
       >
       </FiltroEstadosCidades>
@@ -38,7 +39,7 @@
     </v-expansion-panels>
 
     <div>
-      {{ cidade }}
+      {{ filtrosCategoria.cidade }}
     </div>
     <ol>
       <li v-for="(filtro, filtro_key) in filtros" v-bind:key="filtro_key">
@@ -62,33 +63,88 @@ export default {
     FiltroValor,
   },
   data: () => ({
-    cidade: [],
+    filtrosCategoria: {
+      cidade: [],
+      tipoImovel: [],
+      quartos: [],
+      averbacao_leiloes: [],
+      condicoes: [],
+    },
+    filtrosValores: {},
   }),
   created: function () {
-    console.log("beforeCreate" , this.filtrosSelecionados)
-    console.log(this)
-    this.data = this.filtrosSelecionados;
+    if (
+      this.filtrosSelecionados !== null &&
+      typeof this.filtrosSelecionados !== "undefined"
+    ) {
+      //////////////////////////// TRAVADO AQUI ////////////////////////////
+      console.log("beforeCreate", this.filtrosSelecionados);
+      console.log(this);
+      if ("filtrosCategoria" in this.filtrosSelecionados) {
+        var filtrosCategoriaArr = {};
+        for (var [key, value] of Object.entries(this.filtrosSelecionados.filtrosCategoria)) {
+          filtrosCategoriaArr[key] = value.map(valor => ({ val: valor }));
+        }
+        this.filtrosCategoria = filtrosCategoriaArr;        
+      }
+      if ("filtrosValores" in this.filtrosSelecionados) {
+        //this.filtrosValores = this.filtrosSelecionados.filtrosValores;
+      }
+    }
   },
   methods: {
     //captura a informação das cidades selecionadas do componente filtros
     update_cidades_selecionadas: function (params) {
       console.log("Recebi o evento update_cidades_selecionadas", params);
+      this.filtrosCategoria.cidade = params;
       console.log(this);
-      this.cidade = params;
     },
   },
   watch: {
-    cidade: function (valores) {
-      console.log("cidades_selecionadas foi atualizado", valores);
+    filtrosCategoria: {
+      handler(FiltrosCat) {
+        console.log(
+          "FiltrosComponent Filtro de Categorias Atualizado",
+          FiltrosCat
+        );
 
-      const valoresSelecionados = valores.map(item => item.val);
-      const filtroEnvelope = {
-        nomeFiltro: "cidade",
-        tipoFiltro: "categorico",
-        valoresSelecionados: valoresSelecionados
-      }
+        var filtrosCategoriaArr = [];
 
-      this.$emit("update_filtros", filtroEnvelope);
+        for (const [key, value] of Object.entries(FiltrosCat)) {
+          console.log(key, value);
+          if (value.length > 0) {
+            const valoresSelecionados = value.map((item) => item.val);
+
+            const filtroEnvelope = {
+              nomeFiltro: key,
+              tipoFiltro: "filtrosCategoria",
+              valoresSelecionados: valoresSelecionados,
+            };
+            
+            console.log("update_filtros", filtroEnvelope);
+            filtrosCategoriaArr.push(filtroEnvelope);
+            //this.filtrosSelecionados[key] = value;
+          } else {
+            //delete this.filtrosSelecionados[key];
+          }
+        }
+        console.log(
+          "FiltrosComponent update_filtros_categoria",
+          filtrosCategoriaArr
+        );
+        this.$emit("update_filtros_categoria", filtrosCategoriaArr);
+
+        /*
+        const valoresSelecionados = valores.map((item) => item.val);
+        const filtroEnvelope = {
+          nomeFiltro: "cidade",
+          tipoFiltro: "filtrosCategoria",
+          valoresSelecionados: valoresSelecionados,
+        };
+        this.$emit("update_filtros", filtroEnvelope);
+        */
+      },
+      deep: true,
     },
   },
 };

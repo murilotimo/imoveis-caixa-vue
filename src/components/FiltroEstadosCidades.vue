@@ -56,7 +56,7 @@
 <script>
 export default {
   name: "FilterEstadosCidades",
-  props: ["estados"],
+  props: ["estados", "selecionadas"],
   data: () => ({
     cidades_selecionadas: [],
     search: null,
@@ -73,6 +73,14 @@ export default {
         console.log("update_cidades_selecionadas", val);
       this.$emit("update_cidades_selecionadas", val);
     },
+  },
+  created() {
+    if (
+      this.selecionadas !== null &&
+      typeof this.selecionadas !== "undefined"
+    ) {
+      this.cidades_selecionadas = this.selecionadas;
+    }
   },
 };
 </script>
