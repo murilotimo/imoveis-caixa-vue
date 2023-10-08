@@ -61,6 +61,8 @@
               </v-toolbar>
               <!--  -->
               <ImoveisLista :imoveis="imoveis"></ImoveisLista>
+              <!--Add here the vuetify directive -->
+              <v-card v-intersect="infiniteScrolling"></v-card>
             </v-sheet>
           </v-col>
         </v-row>
@@ -430,20 +432,31 @@ export default {
       filtrosValores: {},
     },
     sortOptions: [
-          { nome: 'Maior Desconto', valor: "sub(div(min(valor_de_avaliacao,valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista), valor_de_avaliacao),1) asc"},
-          { nome: 'Menor Valor', valor: 'min(valor_de_avaliacao,valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista) asc'},
-          { nome: 'Maior Área', valor: 'max(area_do_terreno, area_privativa, area_total) desc'},
-          { nome: 'Menor Valor de Venda', valor: 'valor_de_venda asc' },
-          { nome: 'Maior Valor de Venda', valor: 'valor_de_venda desc' },
-          { nome: 'Menor Valor de Avaliação', valor: 'valor_de_avaliacao asc' },
-          { nome: 'Maior Valor de Avaliação', valor: 'valor_de_avaliacao desc' },
-        ],
-    sort: '',
+      {
+        nome: "Maior Desconto",
+        valor:
+          "sub(div(min(valor_de_avaliacao,valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista), valor_de_avaliacao),1) asc",
+      },
+      {
+        nome: "Menor Valor",
+        valor:
+          "min(valor_de_avaliacao,valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista) asc",
+      },
+      {
+        nome: "Maior Área",
+        valor: "max(area_do_terreno, area_privativa, area_total) desc",
+      },
+      { nome: "Menor Valor de Venda", valor: "valor_de_venda asc" },
+      { nome: "Maior Valor de Venda", valor: "valor_de_venda desc" },
+      { nome: "Menor Valor de Avaliação", valor: "valor_de_avaliacao asc" },
+      { nome: "Maior Valor de Avaliação", valor: "valor_de_avaliacao desc" },
+    ],
+    sort: "",
     search: null,
     caseSensitive: false,
     pTotalImoveis: 0,
     pPaginaAtual: 0,
-    pTamanhoPagina: 25,
+    pTamanhoPagina: 40,
   }),
   computed: {
     filter() {
@@ -580,8 +593,8 @@ export default {
 
       let envelope = {
         filtros: self.filtrosSelecionados,
-        start: this.pPaginaAtual * this.pTamanhoPagina,
-        rows: this.pTamanhoPagina,
+        offset: this.pPaginaAtual * this.pTamanhoPagina,
+        limit: this.pTamanhoPagina,
         sort: this.sort,
       };
 
@@ -609,14 +622,43 @@ export default {
           console.error(error);
         });
     },
+    infiniteScrolling(entries, observer, isIntersecting) {
+      const self = this;
+      console.log("Chamou o Scrolllllllllll");
+      console.log(entries, observer, isIntersecting);
+      this.pPaginaAtual = this.pPaginaAtual + 1;
 
+      let envelope = {
+        filtros: self.filtrosSelecionados,
+        offset: this.pPaginaAtual * this.pTamanhoPagina,
+        limit: this.pTamanhoPagina,
+        sort: this.sort,
+      };
+
+      axios
+        .post(
+          "http://localhost:5002/imoveis/busca",
+          envelope
+        )
+        .then((response) => {
+          console.log(response.data);
+          console.log(response.data.response.docs);
+          // Concatena os imoveis atuais com os imoveis recebidos via api
+          self.imoveis = self.imoveis.concat(response.data.response.docs);
+
+        })
+        .catch((error) => {
+          // Lide com erros de solicitação aqui
+          console.error(error);
+        });
+    },
     // ...
   },
-  watch : {
+  watch: {
     sort: function (val) {
       console.log("Sort", val);
       this.getImoveis();
-    }
-  }
+    },
+  },
 };
 </script>
