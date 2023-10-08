@@ -35,9 +35,30 @@
 
           <v-col cols="12" sm="9">
             <v-sheet min-height="70vh" rounded="lg">
-              <p>
-                Foram encontrados {{ pTotalImoveis.toLocaleString("pt-BR") }}
-              </p>
+              <v-toolbar>
+                <v-toolbar-title>
+                  <p>
+                    Foram encontrados
+                    {{ pTotalImoveis.toLocaleString("pt-BR") }}
+                  </p>
+                </v-toolbar-title>
+
+                <v-spacer></v-spacer>
+
+                <v-col class="d-flex" cols="3">
+                  <v-select
+                    :items="sortOptions"
+                    v-model="sort"
+                    item-text="nome"
+                    item-value="valor"
+                    label="Ordenar por"
+                    outlined
+                    dense
+                  >
+                    <v-option> </v-option>
+                  </v-select>
+                </v-col>
+              </v-toolbar>
               <!--  -->
               <ImoveisLista :imoveis="imoveis"></ImoveisLista>
             </v-sheet>
@@ -408,6 +429,13 @@ export default {
       },
       filtrosValores: {},
     },
+    sortOptions: [
+          { nome: 'Menor Valor de Venda', valor: 'valor_de_venda asc' },
+          { nome: 'Maior Valor de Venda', valor: 'valor_de_venda desc' },
+          { nome: 'Menor Valor de Avaliação', valor: 'valor_de_avaliacao asc' },
+          { nome: 'Maior Valor de Avaliação', valor: 'valor_de_avaliacao desc' },
+        ],
+    sort: '',
     search: null,
     caseSensitive: false,
     pTotalImoveis: 0,
@@ -424,7 +452,7 @@ export default {
   beforeCreate() {
     // Faça a chamada para o arquivo 'facets.js' e processe o resultado
     axios
-      .get("https://construcaocompartilhada.com.br/imoveis/")
+      .get("http://localhost:5002/imoveis/")
       .then((response) => {
         // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
         // Preencha a propriedade 'treeItems' com os dados da resposta
@@ -458,13 +486,12 @@ export default {
     const encodedJsonString = this.$route.query.filtros;
 
     // Decodifique a string para obter o objeto JavaScript original
-    console.log(encodedJsonString); 
+    console.log(encodedJsonString);
     if (encodedJsonString) {
       const jsonString = decodeURIComponent(encodedJsonString);
       const queryParams = JSON.parse(jsonString);
       this.filtrosSelecionados = queryParams;
     }
-
 
     // Agora, queryParams conterá o objeto original com os filtros
     //console.log(queryParams.filtrosCategoria.cidade); // Irá mostrar a lista de cidades
@@ -506,7 +533,7 @@ export default {
         this.$router.push({ path: "/" });
       } else {
         // Caso não esteja vazio, Aplica o filtro e atualiza a url
-        
+
         for (var [key, value] of Object.entries(params)) {
           console.log("Aquiqqqqqq", key, value);
           var tpFiltro = value["tipoFiltro"];
@@ -552,13 +579,14 @@ export default {
         filtros: self.filtrosSelecionados,
         start: this.pPaginaAtual * this.pTamanhoPagina,
         rows: this.pTamanhoPagina,
+        sort: this.sort,
       };
 
       console.log("Envelope", envelope);
 
       axios
         .post(
-          "https://construcaocompartilhada.com.br/imoveis/busca",
+          "http://localhost:5002/imoveis/busca",
           envelope
           /*
         {
@@ -581,5 +609,11 @@ export default {
 
     // ...
   },
+  watch : {
+    sort: function (val) {
+      console.log("Sort", val);
+      this.getImoveis();
+    }
+  }
 };
 </script>

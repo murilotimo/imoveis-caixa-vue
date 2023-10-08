@@ -3,32 +3,10 @@
     <v-card
     color="grey lighten-4"
     flat
-    height="80px"
+    height="10px"
     tile
   >
-    <v-toolbar >
-      <v-toolbar-title></v-toolbar-title>
 
-      <v-spacer></v-spacer>
-
-      <v-col
-        class="d-flex"
-        cols="3"
-      >
-        <v-select
-          :items="items"
-          item-text="nome"
-          item-value="valor"
-          label="Ordenar por"
-          outlined
-          dense
-        >
-        <v-option>
-
-        </v-option>
-      </v-select>
-      </v-col>
-    </v-toolbar>
   </v-card>
     <v-row dense>
       <v-col
@@ -37,7 +15,12 @@
         :key="imovel.id_imovel"
         :cols="3"
       >
-        <v-card>
+        <v-card
+          class="mx-auto"
+          max-width="344"
+          outlined
+          tile
+        >
           <v-carousel
             height="230px"
           >
@@ -46,23 +29,27 @@
               :key="i"
               :src="'imagens_imoveis/' + item"
             >
-              <v-card-title v-if="imovel.valor_de_venda">
-                {{ formataReais(imovel.valor_de_venda) }}
-              </v-card-title>
-              <v-card-title v-if="imovel.valor_minimo_de_venda">
-                {{ formataReais(imovel.valor_minimo_de_venda) }}
-                <v-chip class="ma-2" x-small> mínimo </v-chip>
-              </v-card-title>
-              <v-card-title v-if="imovel.valor_minimo_de_venda_a_vista">
-                {{ formataReais(imovel.valor_minimo_de_venda_a_vista) }}
-                <v-chip class="ma-2" x-small> a vista </v-chip>
-              </v-card-title></v-carousel-item
+              </v-carousel-item
             >
           </v-carousel>
 
           <v-card-subtitle>
             ... {{ imovel.descricao.slice(-110) }}</v-card-subtitle
           >
+
+          <v-row dense>
+            <v-card-title v-if="imovel.valor_de_venda" >
+                {{ formataReais(imovel.valor_de_venda) }}
+              </v-card-title>
+              <v-card-title v-if="imovel.valor_minimo_de_venda" >
+                {{ formataReais(imovel.valor_minimo_de_venda) }}
+                <v-chip class="ma-2" x-small> mínimo </v-chip>
+              </v-card-title>
+              <v-card-title v-if="imovel.valor_minimo_de_venda_a_vista" >
+                {{ formataReais(imovel.valor_minimo_de_venda_a_vista) }}
+                <v-chip class="ma-2" x-small> a vista </v-chip>
+              </v-card-title>
+          </v-row>
 
           <v-card-text>
             <!-- Áreas -->
@@ -162,15 +149,5 @@ export default {
       });
     },
   },
-  data () {
-      return {
-        items: [
-          { nome: 'Menor Valor de Venda', valor: 'valor_de_venda asc' },
-          { nome: 'Maior Valor de Venda', valor: 'valor_de_venda desc' },
-          { nome: 'Menor Valor de Avaliação', valor: 'valor_de_avaliacao asc' },
-          { nome: 'Maior Valor de Avaliação', valor: 'valor_de_avaliacao desc' },
-        ],
-      }
-    },
 };
 </script>
