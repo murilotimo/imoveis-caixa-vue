@@ -430,6 +430,9 @@ export default {
       filtrosValores: {},
     },
     sortOptions: [
+          { nome: 'Maior Desconto', valor: "sub(div(min(valor_de_avaliacao,valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista), valor_de_avaliacao),1) asc"},
+          { nome: 'Menor Valor', valor: 'min(valor_de_avaliacao,valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista) asc'},
+          { nome: 'Maior Área', valor: 'max(area_do_terreno, area_privativa, area_total) desc'},
           { nome: 'Menor Valor de Venda', valor: 'valor_de_venda asc' },
           { nome: 'Maior Valor de Venda', valor: 'valor_de_venda desc' },
           { nome: 'Menor Valor de Avaliação', valor: 'valor_de_avaliacao asc' },

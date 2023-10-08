@@ -38,7 +38,11 @@
           >
 
           <v-row dense>
+            <v-card-subtitle>
+                {{ formataReais(imovel.valor_de_avaliacao) }}
+            </v-card-subtitle>
             <v-card-title v-if="imovel.valor_de_venda" >
+              <v-chip class="ma-2" x-small> Venda </v-chip>
                 {{ formataReais(imovel.valor_de_venda) }}
               </v-card-title>
               <v-card-title v-if="imovel.valor_minimo_de_venda" >
@@ -49,6 +53,9 @@
                 {{ formataReais(imovel.valor_minimo_de_venda_a_vista) }}
                 <v-chip class="ma-2" x-small> a vista </v-chip>
               </v-card-title>
+              <v-card-title v-if="imovel.desconto" >
+                {{ imovel.desconto }}
+              </v-card-title>
           </v-row>
 
           <v-card-text>
@@ -57,7 +64,7 @@
               <v-col cols="4" v-if="imovel.area_privativa">
                 <span>Área Privativa</span>
                 <v-card-subtitle>
-                  {{ imovel.area_privativa[0] }}
+                  {{ imovel.area_privativa }}
                   {{ imovel.area_privativa_unidade }}
                 </v-card-subtitle>
               </v-col>
