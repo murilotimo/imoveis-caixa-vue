@@ -85,23 +85,28 @@ export default {
   data: () => ({
     links: ["Busca Imóveis"],
     filtros: {
-      tipo_de_imovel: {
-        missing: { count: 0 },
-        buckets: [],
+      Categorias: {
+        tipo_de_imovel: {
+          missing: { count: 0 },
+          buckets: [],
+        },
+        quartos: {
+          missing: { count: 0 },
+          buckets: [],
+        },
+        garagem: {
+          missing: { count: 0 },
+          buckets: [],
+        },
+        averbacao_dos_leiloes_negativos: {
+          missing: { count: 0 },
+          buckets: [],
+        },
+        condicoes: { missing: { count: 1 }, buckets: [] },
       },
-      quartos: {
-        missing: { count: 0 },
-        buckets: [],
+      valores : {
+
       },
-      garagem: {
-        missing: { count: 0 },
-        buckets: [],
-      },
-      averbacao_dos_leiloes_negativos: {
-        missing: { count: 0 },
-        buckets: [],
-      },
-      condicoes: { missing: { count: 1 }, buckets: [] },
       estados: { missing: { count: 0 }, buckets: [] },
     },
     imoveis: [
@@ -440,7 +445,7 @@ export default {
       {
         nome: "Menor Valor",
         valor:
-          "min(valor_de_avaliacao,valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista) asc",
+          "min(valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista) asc",
       },
       {
         nome: "Maior Área",
@@ -472,7 +477,7 @@ export default {
       .then((response) => {
         // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
         // Preencha a propriedade 'treeItems' com os dados da resposta
-        console.log(response.data);
+        console.log("beforeCreate response.data", response.data);
 
         // Ajusta quantida de imóveis encontratos
         this.pTotalImoveis = response.data.response.numFound;
@@ -480,12 +485,24 @@ export default {
         let remove_chaves = ["estados", "count", "cidades"];
 
         for (let filtro in response.data.facets) {
-          //console.log(filtro);
-          //console.log(remove_chaves.includes(filtro));
+          console.log(filtro);
+          console.log(remove_chaves.includes(filtro));
           if (!remove_chaves.includes(filtro)) {
             //console.log(filtro, response.data.facets[filtro]);
-            this.filtros[filtro] = response.data.facets[filtro];
+            this.filtros["Categorias"][filtro] =
+              response.data.facets[filtro];
           }
+        }
+
+        for (let estatistica in response.data.stats.stats_fields){
+          console.log(estatistica);
+          let nome
+          if (estatistica == 'min(valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista)') {
+            nome= 'valor_menor'            
+          } else {
+            nome = estatistica
+          }
+          this.filtros["valores"][nome] = response.data.stats.stats_fields[estatistica];
         }
 
         this.filtros["estados"] = response.data.facets.estados; // Supondo que os dados estejam em 'facets' na resposta
@@ -541,6 +558,7 @@ export default {
     //captura a informação das cidades selecionadas do componente filtros
     update_filtros_categoria: function (params) {
       console.log("Filtros foram atualizados", params, this);
+      this.pPaginaAtual = 0;
 
       //Verifica o tamanho do objeto params
       if (Object.keys(params).length === 0) {
@@ -589,10 +607,10 @@ export default {
       return numero.toLocaleString("pt-BR");
     },
     getImoveis: function () {
-      const self = this;
+      //const self = this;
 
       let envelope = {
-        filtros: self.filtrosSelecionados,
+        filtros: this.filtrosSelecionados,
         offset: this.pPaginaAtual * this.pTamanhoPagina,
         limit: this.pTamanhoPagina,
         sort: this.sort,
@@ -636,16 +654,12 @@ export default {
       };
 
       axios
-        .post(
-          "http://localhost:5002/imoveis/busca",
-          envelope
-        )
+        .post("http://localhost:5002/imoveis/busca", envelope)
         .then((response) => {
           console.log(response.data);
           console.log(response.data.response.docs);
           // Concatena os imoveis atuais com os imoveis recebidos via api
           self.imoveis = self.imoveis.concat(response.data.response.docs);
-
         })
         .catch((error) => {
           // Lide com erros de solicitação aqui

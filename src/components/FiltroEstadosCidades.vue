@@ -71,7 +71,7 @@ export default {
   watch: {
     cidades_selecionadas: function (val) {
         console.log("update_cidades_selecionadas", val);
-      this.$emit("update_cidades_selecionadas", val);
+        this.$emit("update_cidades_selecionadas", val);
     },
   },
   created() {

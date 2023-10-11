@@ -17,27 +17,43 @@
       </FiltroEstadosCidades>
 
       <!-- Filtro Valor -->
-      <FiltroValor :valor="filtros.valor"></FiltroValor>
+      <FiltroValor :valor_menor="filtros.valores.valor_menor"></FiltroValor>
 
       <!-- Filtros de Categorias -->
       <v-expansion-panel
-        v-for="(filtro, filtro_idx) in filtros"
+        v-for="(filtro, filtro_idx) in filtros.Categorias"
         :key="filtro_idx"
       >
         <v-expansion-panel-header>
           {{ filtro_idx }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <!-- Seletores de tipo de imóvel como: terreno, apartamento, casa -->
-          <ul>
-            <li>Terreno</li>
-            <li>Apartamento</li>
-            <li>Casa</li>
-          </ul>
+          <div>
+            <!-- Seletores de tipo de imóvel como: terreno, apartamento, casa -->
+            <v-checkbox
+              v-for="(item, item_idx) in filtro.buckets"
+              v-model="filtrosCategorias[filtro_idx]"
+              :key="item_idx"
+              :label="item.val + ' (' + item.count + ')'"
+              :value="item.val"
+              multiple
+              dense
+            >
+            </v-checkbox>
+
+            <v-checkbox 
+              v-if="filtro['missing'].count"
+              :label="'Não informado (' + filtro['missing'].count + ')'"
+              :value="filtro_idx"
+              v-model="filtrosCategorias['missing']"
+              multiple
+            > OI </v-checkbox>
+          </div>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
 
+    <!--
     <div>
       {{ filtrosCategorias.cidade }}
     </div>
@@ -47,6 +63,7 @@
         <p>{{ filtro }}</p>
       </li>
     </ol>
+    -->
   </div>
 </template>
 
@@ -71,6 +88,7 @@ export default {
       condicoes: [],
     },
     filtrosValores: {},
+    missing: [],
   }),
   created: function () {
     if (
@@ -82,10 +100,12 @@ export default {
       console.log(this);
       if ("filtrosCategorias" in this.filtrosSelecionados) {
         var filtrosCategoriasArr = {};
-        for (var [key, value] of Object.entries(this.filtrosSelecionados.filtrosCategorias)) {
-          filtrosCategoriasArr[key] = value.map(valor => ({ val: valor }));
+        for (var [key, value] of Object.entries(
+          this.filtrosSelecionados.filtrosCategorias
+        )) {
+          filtrosCategoriasArr[key] = value.map((valor) => ({ val: valor }));
         }
-        this.filtrosCategorias = filtrosCategoriasArr;        
+        this.filtrosCategorias = filtrosCategoriasArr;
       }
       if ("filtrosValores" in this.filtrosSelecionados) {
         //this.filtrosValores = this.filtrosSelecionados.filtrosValores;
@@ -113,14 +133,18 @@ export default {
         for (const [key, value] of Object.entries(FiltrosCat)) {
           console.log(key, value);
           if (value.length > 0) {
-            const valoresSelecionados = value.map((item) => item.val);
-
+            let valoresSelecionados;
+            if (key == "cidade") {
+              valoresSelecionados = value.map((item) => item.val);
+            } else {
+              valoresSelecionados = value;
+            }
             const filtroEnvelope = {
               nomeFiltro: key,
               tipoFiltro: "filtrosCategorias",
               valoresSelecionados: valoresSelecionados,
             };
-            
+
             console.log("update_filtros", filtroEnvelope);
             filtrosCategoriasArr.push(filtroEnvelope);
             //this.filtrosSelecionados[key] = value;
@@ -133,16 +157,6 @@ export default {
           filtrosCategoriasArr
         );
         this.$emit("update_filtros_categoria", filtrosCategoriasArr);
-
-        /*
-        const valoresSelecionados = valores.map((item) => item.val);
-        const filtroEnvelope = {
-          nomeFiltro: "cidade",
-          tipoFiltro: "filtrosCategoria",
-          valoresSelecionados: valoresSelecionados,
-        };
-        this.$emit("update_filtros", filtroEnvelope);
-        */
       },
       deep: true,
     },
