@@ -61,6 +61,8 @@
               </v-toolbar>
               <!--  -->
               <ImoveisLista :imoveis="imoveis"></ImoveisLista>
+              <!--Add here the vuetify directive -->
+              <v-card v-intersect="infiniteScrolling"></v-card>
             </v-sheet>
           </v-col>
         </v-row>
@@ -83,23 +85,28 @@ export default {
   data: () => ({
     links: ["Busca Imóveis"],
     filtros: {
-      tipo_de_imovel: {
-        missing: { count: 0 },
-        buckets: [],
+      Categorias: {
+        tipo_de_imovel: {
+          missing: { count: 0 },
+          buckets: [],
+        },
+        quartos: {
+          missing: { count: 0 },
+          buckets: [],
+        },
+        garagem: {
+          missing: { count: 0 },
+          buckets: [],
+        },
+        averbacao_dos_leiloes_negativos: {
+          missing: { count: 0 },
+          buckets: [],
+        },
+        condicoes: { missing: { count: 1 }, buckets: [] },
       },
-      quartos: {
-        missing: { count: 0 },
-        buckets: [],
+      valores : {
+
       },
-      garagem: {
-        missing: { count: 0 },
-        buckets: [],
-      },
-      averbacao_dos_leiloes_negativos: {
-        missing: { count: 0 },
-        buckets: [],
-      },
-      condicoes: { missing: { count: 1 }, buckets: [] },
       estados: { missing: { count: 0 }, buckets: [] },
     },
     imoveis: [
@@ -430,17 +437,31 @@ export default {
       filtrosValores: {},
     },
     sortOptions: [
-          { nome: 'Menor Valor de Venda', valor: 'valor_de_venda asc' },
-          { nome: 'Maior Valor de Venda', valor: 'valor_de_venda desc' },
-          { nome: 'Menor Valor de Avaliação', valor: 'valor_de_avaliacao asc' },
-          { nome: 'Maior Valor de Avaliação', valor: 'valor_de_avaliacao desc' },
-        ],
-    sort: '',
+      {
+        nome: "Maior Desconto",
+        valor:
+          "sub(div(min(valor_de_avaliacao,valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista), valor_de_avaliacao),1) asc",
+      },
+      {
+        nome: "Menor Valor",
+        valor:
+          "min(valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista) asc",
+      },
+      {
+        nome: "Maior Área",
+        valor: "max(area_do_terreno, area_privativa, area_total) desc",
+      },
+      { nome: "Menor Valor de Venda", valor: "valor_de_venda asc" },
+      { nome: "Maior Valor de Venda", valor: "valor_de_venda desc" },
+      { nome: "Menor Valor de Avaliação", valor: "valor_de_avaliacao asc" },
+      { nome: "Maior Valor de Avaliação", valor: "valor_de_avaliacao desc" },
+    ],
+    sort: "",
     search: null,
     caseSensitive: false,
     pTotalImoveis: 0,
     pPaginaAtual: 0,
-    pTamanhoPagina: 25,
+    pTamanhoPagina: 40,
   }),
   computed: {
     filter() {
@@ -452,11 +473,11 @@ export default {
   beforeCreate() {
     // Faça a chamada para o arquivo 'facets.js' e processe o resultado
     axios
-      .get("http://localhost:5002/imoveis/")
+      .get("https://construcaocompartilhada.com.br/api/imoveis/")
       .then((response) => {
         // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
         // Preencha a propriedade 'treeItems' com os dados da resposta
-        console.log(response.data);
+        console.log("beforeCreate response.data", response.data);
 
         // Ajusta quantida de imóveis encontratos
         this.pTotalImoveis = response.data.response.numFound;
@@ -464,12 +485,24 @@ export default {
         let remove_chaves = ["estados", "count", "cidades"];
 
         for (let filtro in response.data.facets) {
-          //console.log(filtro);
-          //console.log(remove_chaves.includes(filtro));
+          console.log(filtro);
+          console.log(remove_chaves.includes(filtro));
           if (!remove_chaves.includes(filtro)) {
             //console.log(filtro, response.data.facets[filtro]);
-            this.filtros[filtro] = response.data.facets[filtro];
+            this.filtros["Categorias"][filtro] =
+              response.data.facets[filtro];
           }
+        }
+
+        for (let estatistica in response.data.stats.stats_fields){
+          console.log(estatistica);
+          let nome
+          if (estatistica == 'min(valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista)') {
+            nome= 'valor_menor'            
+          } else {
+            nome = estatistica
+          }
+          this.filtros["valores"][nome] = response.data.stats.stats_fields[estatistica];
         }
 
         this.filtros["estados"] = response.data.facets.estados; // Supondo que os dados estejam em 'facets' na resposta
@@ -525,6 +558,7 @@ export default {
     //captura a informação das cidades selecionadas do componente filtros
     update_filtros_categoria: function (params) {
       console.log("Filtros foram atualizados", params, this);
+      this.pPaginaAtual = 0;
 
       //Verifica o tamanho do objeto params
       if (Object.keys(params).length === 0) {
@@ -573,12 +607,12 @@ export default {
       return numero.toLocaleString("pt-BR");
     },
     getImoveis: function () {
-      const self = this;
+      //const self = this;
 
       let envelope = {
-        filtros: self.filtrosSelecionados,
-        start: this.pPaginaAtual * this.pTamanhoPagina,
-        rows: this.pTamanhoPagina,
+        filtros: this.filtrosSelecionados,
+        offset: this.pPaginaAtual * this.pTamanhoPagina,
+        limit: this.pTamanhoPagina,
         sort: this.sort,
       };
 
@@ -586,7 +620,7 @@ export default {
 
       axios
         .post(
-          "http://localhost:5002/imoveis/busca",
+          "https://construcaocompartilhada.com.br/api/imoveis/busca",
           envelope
           /*
         {
@@ -606,14 +640,39 @@ export default {
           console.error(error);
         });
     },
+    infiniteScrolling(entries, observer, isIntersecting) {
+      const self = this;
+      console.log("Chamou o Scrolllllllllll");
+      console.log(entries, observer, isIntersecting);
+      this.pPaginaAtual = this.pPaginaAtual + 1;
 
+      let envelope = {
+        filtros: self.filtrosSelecionados,
+        offset: this.pPaginaAtual * this.pTamanhoPagina,
+        limit: this.pTamanhoPagina,
+        sort: this.sort,
+      };
+
+      axios
+        .post("https://construcaocompartilhada.com.br/api/imoveis/busca", envelope)
+        .then((response) => {
+          console.log(response.data);
+          console.log(response.data.response.docs);
+          // Concatena os imoveis atuais com os imoveis recebidos via api
+          self.imoveis = self.imoveis.concat(response.data.response.docs);
+        })
+        .catch((error) => {
+          // Lide com erros de solicitação aqui
+          console.error(error);
+        });
+    },
     // ...
   },
-  watch : {
+  watch: {
     sort: function (val) {
       console.log("Sort", val);
       this.getImoveis();
-    }
-  }
+    },
+  },
 };
 </script>
