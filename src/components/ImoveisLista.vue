@@ -13,7 +13,11 @@
         class="imovel"
         v-for="imovel in imoveis"
         :key="imovel.id_imovel"
-        :cols="3"
+        cols="12"
+        xl="3"
+        lg="4"
+        sm="12"
+        xs="12"
       >
         <v-card
           class="mx-auto"
