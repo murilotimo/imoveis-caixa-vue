@@ -46,4 +46,6 @@ inicialmente disponibilizamos um mockup da api para testes em:
 public/api/facets.js
 ```
 
+vue build
+
 
