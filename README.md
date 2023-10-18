@@ -1,5 +1,7 @@
 # Front End Vue para busca de imóveis CAIXA
 
+vue-cli-service serve
+
 ## Descrição
 Este é um projeto que visa melhorar a interface de busca de imóveis da CAIXA, melhorado a experiência do usuário e facilitando a busca de imóveis.
 
@@ -43,5 +45,7 @@ inicialmente disponibilizamos um mockup da api para testes em:
 ```
 public/api/facets.js
 ```
+
+vue build
 
 

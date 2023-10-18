@@ -1,6 +1,5 @@
 .DS_Store
 node_modules
-/dist
 
 
 # local env files
@@ -22,5 +21,6 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-public/imagens_imoveis
-public/imagens_imoveis/*
+# imagens
+public/imagens_imoveis/
+dist/imagens_imoveis/
