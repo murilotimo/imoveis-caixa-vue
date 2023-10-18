@@ -21,3 +21,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+public/imagens_imoveis
+public/imagens_imoveis/*
