@@ -7,8 +7,8 @@
       ></v-avatar>
 
       <v-tabs centered class="ml-n9" color="grey darken-1">
-        <v-tab v-for="link in links" :key="link">
-          {{ link }}
+        <v-tab v-for="link in links" :key="link.key" :href="link.href">
+          {{ link.key }}
         </v-tab>
       </v-tabs>
 
@@ -83,7 +83,7 @@ export default {
     ImoveisLista,
   },
   data: () => ({
-    links: ["Busca Imóveis"],
+    links: [{ key: "Busca Imóveis" , href: "/"}],
     filtros: {
       Categorias: {
         tipo_de_imovel: {
@@ -432,7 +432,7 @@ export default {
     ],
     filtrosSelecionados: {
       filtrosCategorias: {
-        cidade: [],
+        comarca: [],
       },
       filtrosValores: {},
     },
