@@ -28,6 +28,10 @@
             </v-carousel-item>
           </v-carousel>
 
+          <v-card-subtitle v-if="imovel.dh_fim_venda_online">{{
+            formatarDataHora(imovel.dh_fim_venda_online)
+          }}</v-card-subtitle>
+
           <v-card-subtitle>{{ imovel.descricao }}</v-card-subtitle>
 
           <v-card-text>
@@ -213,6 +217,9 @@ export default {
 
       // Adiciona o sinal de porcentagem
       return valorFormatado + " %";
+    },
+    formatarDataHora(string) {
+      return new Date(string).toLocaleString("pt-BR", { timeZone: "UTC" });
     },
   },
 };

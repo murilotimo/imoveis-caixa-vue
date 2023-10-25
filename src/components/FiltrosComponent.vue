@@ -81,7 +81,7 @@ export default {
   },
   data: () => ({
     filtrosCategorias: {
-      cidade: [],
+      comarca: [],
       tipoImovel: [],
       quartos: [],
       averbacao_leiloes: [],
@@ -116,8 +116,9 @@ export default {
     //captura a informação das cidades selecionadas do componente filtros
     update_cidades_selecionadas: function (params) {
       console.log("Recebi o evento update_cidades_selecionadas", params);
-      this.filtrosCategorias.cidade = params;
+      this.filtrosCategorias.comarca = params;
       console.log(this);
+      console.log(this.filtrosCategorias);
     },
   },
   watch: {
@@ -134,7 +135,7 @@ export default {
           console.log(key, value);
           if (value.length > 0) {
             let valoresSelecionados;
-            if (key == "cidade") {
+            if (key == "comarca") {
               valoresSelecionados = value.map((item) => item.val);
             } else {
               valoresSelecionados = value;
@@ -160,6 +161,9 @@ export default {
       },
       deep: true,
     },
+    'filtrosCategoria.comarca': function (FiltrosCat){
+      console.log("FiltrosComponent Filtro de Categorias Atualizado", FiltrosCat);
+    }
   },
 };
 </script>
