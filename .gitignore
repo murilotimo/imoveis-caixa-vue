@@ -24,3 +24,4 @@ pnpm-debug.log*
 # imagens
 public/imagens_imoveis/
 dist/imagens_imoveis/
+dist/imagens_imoveis_bkp
