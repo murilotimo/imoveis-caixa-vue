@@ -83,7 +83,7 @@ export default {
     ImoveisLista,
   },
   data: () => ({
-    links: [{ key: "Busca Imóveis" , href: "/"}],
+    links: [{ key: "Busca Imóveis", href: "/" }],
     filtros: {
       Categorias: {
         tipo_de_imovel: {
@@ -104,9 +104,7 @@ export default {
         },
         condicoes: { missing: { count: 1 }, buckets: [] },
       },
-      valores : {
-
-      },
+      valores: {},
       estados: { missing: { count: 0 }, buckets: [] },
     },
     imoveis: [
@@ -471,50 +469,47 @@ export default {
     },
   },
   beforeCreate() {
-    // Faça a chamada para o arquivo 'facets.js' e processe o resultado
+    // Captura as informações de imóveis disponíveis
     axios
       .get("https://construcaocompartilhada.com.br/api/imoveis/")
       .then((response) => {
-        // Supondo que 'facets.js' tenha uma estrutura de dados similar ao que você forneceu
-        // Preencha a propriedade 'treeItems' com os dados da resposta
-        console.log("beforeCreate response.data", response.data);
-
         // Ajusta quantida de imóveis encontratos
         this.pTotalImoveis = response.data.response.numFound;
 
+        /* Ajusta os filtros de categorias
+          Os filtros de estado e Cidade são tratados de maneira diferente
+          Por isso esse tratamento para identificar essas chaves e não adicionar ao objeto de filtros 
+        */
         let remove_chaves = ["estados", "count", "cidades"];
 
         for (let filtro in response.data.facets) {
-          console.log(filtro);
-          console.log(remove_chaves.includes(filtro));
           if (!remove_chaves.includes(filtro)) {
-            //console.log(filtro, response.data.facets[filtro]);
-            this.filtros["Categorias"][filtro] =
-              response.data.facets[filtro];
+            this.filtros["Categorias"][filtro] = response.data.facets[filtro];
           }
         }
 
-        for (let estatistica in response.data.stats.stats_fields){
-          console.log(estatistica);
-          let nome
-          if (estatistica == 'min(valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista)') {
-            nome= 'valor_menor'            
+        for (let estatistica in response.data.stats.stats_fields) {
+          
+          let nome;
+          if ( estatistica == "min(valor_de_venda,valor_minimo_de_venda,valor_minimo_de_venda_a_vista)" ) {
+            nome = "valor_menor";
           } else {
-            nome = estatistica
+            nome = estatistica;
           }
+
           this.filtros["valores"][nome] = response.data.stats.stats_fields[estatistica];
         }
 
-        this.filtros["estados"] = response.data.facets.estados; // Supondo que os dados estejam em 'facets' na resposta
+        this.filtros["estados"] = response.data.facets.estados; // Adiciona os tratamento para estados e cidades
       })
       .catch((error) => {
         // Lide com erros de solicitação aqui
         console.error(error);
       });
+
   },
   created: function () {
     console.log("Parametros da Url", this.$route.query);
-
     // Recupere a string codificada dos parâmetros de consulta da URL
     const encodedJsonString = this.$route.query.filtros;
 
@@ -544,7 +539,7 @@ export default {
       : 25;
     */
 
-    this.getImoveis();
+    //this.getImoveis();
   },
   methods: {
     logItem(item) {
@@ -567,9 +562,7 @@ export default {
         this.$router.push({ path: "/" });
       } else {
         // Caso não esteja vazio, Aplica o filtro e atualiza a url
-
         for (var [key, value] of Object.entries(params)) {
-          console.log("Aquiqqqqqq", key, value);
           var tpFiltro = value["tipoFiltro"];
           var nmFiltro = value["nomeFiltro"];
           var vlFiltro = value["valoresSelecionados"];
@@ -616,7 +609,22 @@ export default {
         sort: this.sort,
       };
 
-      console.log("Envelope", envelope);
+      /**
+       * Ajusta a consulta para incluir apenas imóveis disponíveis
+       */
+
+
+      if (envelope.filtros.filtrosCategorias.hasOwnProperty("missing")) {
+        console.log("Tem missing", envelope.filtros.filtrosCategorias);
+        if (!envelope.filtros.filtrosCategorias.missing.includes("dh_retirado")) {
+          envelope.filtros.filtrosCategorias.missing.push("dh_retirado");
+        }
+      } else {
+        console.log("Não tem missing", envelope.filtros.filtrosCategorias);
+        envelope.filtros.filtrosCategorias.missing = ["dh_retirado"];
+      }
+
+      console.log("Envelope Consulta", envelope);
 
       axios
         .post(
@@ -654,7 +662,10 @@ export default {
       };
 
       axios
-        .post("https://construcaocompartilhada.com.br/api/imoveis/busca", envelope)
+        .post(
+          "https://construcaocompartilhada.com.br/api/imoveis/busca",
+          envelope
+        )
         .then((response) => {
           console.log(response.data);
           console.log(response.data.response.docs);
