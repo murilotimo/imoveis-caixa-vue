@@ -563,6 +563,7 @@ export default {
       } else {
         // Caso não esteja vazio, Aplica o filtro e atualiza a url
         for (var [key, value] of Object.entries(params)) {
+          console.log(key, value);
           var tpFiltro = value["tipoFiltro"];
           var nmFiltro = value["nomeFiltro"];
           var vlFiltro = value["valoresSelecionados"];
@@ -612,7 +613,7 @@ export default {
       /**
        * Ajusta a consulta para incluir apenas imóveis disponíveis
        */
-      if (envelope.filtros.filtrosCategorias.hasOwnProperty("missing")) {
+      if (envelope.filtros.filtrosCategorias?.missing) {
         if (!envelope.filtros.filtrosCategorias.missing.includes("dh_retirado")) {
           envelope.filtros.filtrosCategorias.missing.push("dh_retirado");
         }
