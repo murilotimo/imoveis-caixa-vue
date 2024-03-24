@@ -612,15 +612,11 @@ export default {
       /**
        * Ajusta a consulta para incluir apenas imóveis disponíveis
        */
-
-
       if (envelope.filtros.filtrosCategorias.hasOwnProperty("missing")) {
-        console.log("Tem missing", envelope.filtros.filtrosCategorias);
         if (!envelope.filtros.filtrosCategorias.missing.includes("dh_retirado")) {
           envelope.filtros.filtrosCategorias.missing.push("dh_retirado");
         }
       } else {
-        console.log("Não tem missing", envelope.filtros.filtrosCategorias);
         envelope.filtros.filtrosCategorias.missing = ["dh_retirado"];
       }
 
